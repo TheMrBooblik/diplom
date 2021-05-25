@@ -9,7 +9,7 @@ const router = Router();
 router.post('/register',
     [
         check('username', 'Incorrect username')
-            .exists,
+            .not().isEmpty().trim().escape(),
         check('pwd', 'Minimal length is 6 symbols')
             .isLength({ min: 6 })
     ],

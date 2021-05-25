@@ -9,7 +9,7 @@ import Alert from '@material-ui/lab/Alert';
 export const wsConnection = new WebSocket("ws://localhost:5000");
 
 export const RegisterPage = () => {
-    const { isLoading, request, error, toast } = useHttp();
+    const { isLoading, request, error, toast, clearError } = useHttp();
     const [isFilled, setFilled] = useState(false);
     const [form, setForm] = useState({
         username: '',
@@ -18,9 +18,6 @@ export const RegisterPage = () => {
     })
 
     React.useEffect(() => {
-        console.log(form.username)
-        console.log(form.pwd)
-        console.log(form.rfid)
         setFilled(!!form.username && !!form.pwd && !!form.rfid);
     },[form])
 
@@ -61,7 +58,9 @@ export const RegisterPage = () => {
     }
 
     const registerHandler = async () => {
+        await clearError();
         const data = await request('/api/auth/register', 'POST', { ...form });
+        console.log(error)
         setOpen(true);
     }
 
@@ -70,21 +69,21 @@ export const RegisterPage = () => {
             <h2>Register the employee</h2>
             <form className={classes.root} noValidate autoComplete="off">
                 <TextField required
-                           error={error.param === "username"}
+                           error={error?.param === "username"}
                            id="first_name"
                            label="Username"
                            variant="outlined"
                            onChange={(e) => changeHandler(e, 'username')}
-                           helperText={error.param === "username" ? error.msg : null}
+                           helperText={error?.param === "username" ? error.msg : null}
                 />
                 <TextField required
-                           error={error.param === "pwd"}
+                           error={error?.param === "pwd"}
                            id="password"
                            label="Password"
                            variant="outlined"
                            type="password"
                            onChange={(e) => changeHandler(e, 'pwd')}
-                           helperText={error.param === "pwd" ? error.msg : null}
+                           helperText={error?.param === "pwd" ? error.msg : null}
                 />
                 <ReaderIndicator rfid={form.rfid}/>
                 <div>

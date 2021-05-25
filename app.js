@@ -12,22 +12,40 @@ const app = express();
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ port: 5000 });
 
+app.use(express.json({ extended: true }));
+
 app.use('/api/auth', require('./routes/auth.routes'));
+
+async function start() {
+    try {
+        await mongoose.connect(DB_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true,
+        });
+        console.log('connected to db');
+        app.listen(config.PORT, () => `App has been started on port ${config.PORT}`);
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+start();
 
 pcsc = pcsc();
 let globalWs;
 
-/*wss.on('connection', ws => {
+wss.on('connection', (ws) => {
     console.log(11111)
 
-    /!*ws.on('message', m => {
+    /*ws.on('message', m => {
         wss.clients.forEach(client => client.send(m));
-    });*!/
+    });*/
 
     ws.on("error", e => ws.send(e));
 
     globalWs = ws;
-});*/
+});
 
 pcsc.on('reader', function (reader) {
     console.log('Reader detected', reader.name);
@@ -73,25 +91,6 @@ pcsc.on('reader', function (reader) {
         }
     });
 });
-
-app.use(express.json({ extended: true }));
-
-async function start() {
-    try {
-        await mongoose.connect(DB_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            useCreateIndex: true,
-        });
-        console.log('connected to db');
-        //app.listen(config.PORT, () => `App has been started on port ${config.PORT}`);
-        app.listen(4200, () => console.log("Server started"))
-    } catch (e) {
-        console.log(e)
-    }
-}
-
-start();
 
 /*app.use(express.static('public'));
 app.use(morgan('dev'));*/
